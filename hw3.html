@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en_US">
+<head>
+<title>CS420 Homework 3</title>
+<style type="text/css">
+div {
+	width: 480px;
+	margin: 0 auto;
+	text-align: left
+}
+
+h1 {
+	text-decoration: underline;
+}
+
+.output {
+	font-size: 200%;
+}
+
+.input {
+	width: 50%;
+}
+
+</style>
+<meta charset="utf-8"/>
+</head>
+
+<body>
+<div>
+<h1>CS420 Homework 3</h1>
+<p id="output" class="output">Enter search keyword below.</p>
+
+<p>
+<input id="search_input" class="input" type="text" onkeypress="if(event.keyCode==13)Application.onSearch()"/>
+<button type="submit" value="search" onclick="Application.onSearch()">Search</button>
+<br/><br/>
+Search mode:<br/>
+<input id="search_name" type="radio" name="search_mode" value="name" checked="checked">Codepoint&rarr;Name</input><br/>
+<input id="search_character" type="radio" name="search_mode" value="character">Name&rarr;Codepoint</input><br/>
+<input id="search_major_category" type="radio" name="search_mode" value="majorCategory">Codepoint&rarr;Major category</input><br/>
+<input id="search_category" type="radio" name="search_mode" value="category">Codepoint&rarr;Category</input>
+<br/><br/>
+Codepoint input mode:<br/>
+<input id="codepoint_character" type="radio" name="codepoint_mode" value="name" checked="checked">Character</input><br/>
+<input id="codepoint_number" type="radio" name="codepoint_mode" value="character">Number</input>
+<br/><br/>
+Search time:<br/>
+<span id="search_time">0.0</span>ms
+</p>
+<script type="text/javascript" src="unicode.js"></script>
+<script>
+
+// class Application
+var Application = {
+	unicodeTable: new UnicodeDataStructure
+}
+
+// On search request
+Application.onSearch = function() {
+	var input = document.getElementById("search_input").value
+
+	// refactor with lambdas
+	if (input != "") {
+		var t = 0.0
+		var result = ""
+
+		if (document.getElementById("search_name").checked) {
+			t = performance.now()
+			result = this.unicodeTable.name(this.parseInputCodepoint(input))
+			t = performance.now() - t
+		}
+		else if (document.getElementById("search_character").checked) {
+			t = performance.now()
+			result = this.unicodeTable.character(input)
+			t = performance.now() - t
+
+			if (result != null) result = "&#" + result.toString() + ";" + "<br/>Dec: " + result + "; Hex: " + result.toString(16)
+		}
+		else if (document.getElementById("search_major_category").checked) {
+			t = performance.now()
+			result = this.unicodeTable.majorCategory(this.parseInputCodepoint(input))
+			t = performance.now() - t
+		}
+		else if (document.getElementById("search_category").checked) {
+			t = performance.now()
+			result = this.unicodeTable.category(this.parseInputCodepoint(input))
+			t = performance.now() - t
+		}
+
+		if (result == null) result = "Not found."
+
+		document.getElementById("output").innerHTML = result
+		document.getElementById("search_time").innerHTML = t
+	}
+}
+
+// Parse the input by codepoint input mode
+Application.parseInputCodepoint = function(input) {
+	if (document.getElementById("codepoint_character").checked) {
+		return input.charCodeAt(0) // TODO: fix for UTF-16
+	}
+	else if (document.getElementById("codepoint_number").checked) {
+		return input.toString()
+	}
+
+	return null
+}
+
+</script>
+</div>
+</body>
+</html>
+

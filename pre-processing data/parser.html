@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en_US">
+<head>
+<title>CS420 Homework 3</title>
+<style type="text/css">
+div {
+	text-align: center;
+}
+
+h1 {
+	text-decoration: underline;
+}
+
+.output {
+	font-size: 200%;
+}
+
+.input {
+	width: 50%;
+}
+
+</style>
+<meta charset="utf-8"/>
+</head>
+
+<body>
+<div>
+<h1>CS420 Homework 3</h1>
+<input type="file" id="files" name="files[]" multiple />
+<output id="list"></output>
+<p id="demo"></p>
+<script>
+// Check for the various File API support.
+if (!window.File || !window.FileReader || !window.FileList) {
+  alert('The File APIs are not fully supported in this browser.');
+}
+
+function parseFiles(evt) {
+	var files = evt.target.files; 
+	for (var i = 0, f; f = files[i]; ++i) {
+		var reader = new FileReader();
+		reader.onload = (function(theFile) {
+			return function(e) {
+				var lines = e.target.result.split('\n');
+				readLines(lines)
+			};
+		})(f);
+		reader.readAsText(f);
+	}
+}
+
+function readLines(lines){
+	var output = [];
+	for(var line = 0; line < lines.length; ++line) {
+		var lineData = (lines[line]).toString().trim().split(';');					
+		
+		var codePoint = lineData[0]					
+		var name = lineData[1]
+		var category = lineData[2]
+		var majorCategory = lineData[4]
+		
+		if (name !== undefined) name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+									
+		if(codePoint.charAt(0) !== '#') output.push("this.insert('" + name + "', parseInt('0x" + codePoint + "'), '" + majorCategory + "', '" + category + "');\n")  											
+	}
+	display(output)	
+}
+
+function display(output) {
+	document.getElementById('list').innerHTML = '<pre>' + output.join("") + '</pre>';
+}
+
+document.getElementById('files').addEventListener('change', parseFiles, false);  
+</script>
+</div>
+</body>
+</html>
